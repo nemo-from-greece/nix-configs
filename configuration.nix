@@ -17,6 +17,16 @@
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
+  # Automatic updating
+  system.autoUpgrade.enable = true;
+  system.autoUpgrade.dates = "weekly";
+
+  # Automatic cleanup
+  nix.gc.automatic = true;
+  nix.gc.dates = "daily";
+  nix.gc.options = "--delete-older-than 10d";
+  nix.settings.auto-optimise-store = true;
+
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
@@ -98,14 +108,17 @@
 
   # Enable virtual machines
   virtualisation.libvirtd.enable = true;
-  programs.virt-manager.enable = true;
+  virtualisation.libvirtd.qemu.swtpm.enable = true;
+  virtualisation.libvirtd.qemu.ovmf = {
+    enable = true;
+    packages = [
+      (pkgs.OVMFFull.override { secureBoot = true; tpmSupport = true; }).fd
+    ];
+  };
 
   # Enable automatic login for the user.
   services.displayManager.autoLogin.enable = true;
   services.displayManager.autoLogin.user = "sdp";
-
-  # Install firefox.
-  programs.firefox.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -124,6 +137,7 @@
     neovim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
     librewolf
+    todoist
     git
     hyprland
     neofetch
@@ -133,6 +147,7 @@
     p7zip
     foot
     jetbrains.pycharm-professional
+    gnome-disk-utility
     dmenu
     kitty
     nemo
@@ -146,8 +161,18 @@
     hyprlock
     discord
     forge-mtg
+    git
     mindustry
+    # Virtualization things
+    qemu
+    libvirt
     virt-manager
+    OVMFFull
+    swtpm
+    spice
+    spice-gtk
+    spice-protocol
+    win-virtio
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
